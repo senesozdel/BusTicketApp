@@ -1,0 +1,40 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="container-form">
+    <h1 class="mt-5 text-center">Ticketx</h1>
+    <form method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="from">Nereden:</label>
+            <select class="form-control" id="from" name="from">
+                <option value="İzmir">İzmir</option>
+                <option value="Aydın">Aydın</option>
+                <option value="Kuşadası">Kuşadası</option>
+                <option value="Çeşme">Çeşme</option>
+                <option value="Denizli">Denizli</option>
+                <option value="Muğla">Muğla</option>
+                <option value="Bodrum">Bodrum</option>
+                <!-- Diğer seçenekler eklenebilir -->
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="to">Nereye:</label>
+            <select class="form-control" id="to" name="to">
+                <option value="İzmir">İzmir</option>
+                <option value="Aydın">Aydın</option>
+                <option value="Kuşadası">Kuşadası</option>
+                <option value="Çeşme">Çeşme</option>
+                <option value="Denizli">Denizli</option>
+                <option value="Muğla">Muğla</option>
+                <option value="Bodrum">Bodrum</option>
+                <!-- Diğer seçenekler eklenebilir -->
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="date">Tarih:</label>
+            <input type="date" name="date" class="form-control" id="date">
+        </div>
+        <input value="Bilet Ara" type="submit" class="btn btn-outline-primary "/>
+    </form>
+</div>

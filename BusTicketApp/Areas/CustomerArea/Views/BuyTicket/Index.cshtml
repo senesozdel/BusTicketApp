@@ -1,0 +1,172 @@
+﻿@using BusTicketApp.Models.ViewModels
+@model List<SeatBuyModel>
+@{
+    var dolukoltuknumaraları = ViewData["dolukoltuknumaraları"] as DoluKoltuklar;
+    var girisyapan = ViewData["girisyapan"] as string ;
+    var secilensefernumarası = ViewData["secilensefernumarası"] as string;
+}
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        var selectedSeats = [];
+
+        function toggleSeat(seat, price) {
+            var seatElement = document.getElementById(`seat_${seat}`);
+            seatElement.classList.toggle('selected');
+
+            if (seatElement.classList.contains('selected')) {
+                selectedSeats.push({ seat: seat, price: price });
+            } else {
+                selectedSeats = selectedSeats.filter(item => item.seat !== seat);
+            }
+
+            updateSelectedSeatsCount();
+            updateTotalAmount();
+            updateSelectedSeatsList();
+
+        }
+
+        function updateSelectedSeatsCount() {
+            var countElement = document.getElementById('selectedSeatsCount');
+            countElement.textContent = `Seçilen Koltuk Sayısı: ${selectedSeats.length}`;
+        }
+
+        function confirmReservation() {
+            // Giriş yapılması gerektiğini belirten alert mesajı göster
+            alert('Giriş yapmanız gerekmektedir.');
+            return false; // Formun submit işlemini engelle
+        }
+
+        function updateTotalAmount() {
+            var totalAmountElement = document.getElementById('totalAmount');
+            var totalAmount = selectedSeats.reduce((acc, seat) => acc + seat.price, 0);
+            totalAmountElement.textContent = `Toplam Ödeme: ${totalAmount} TL`;
+            document.getElementById("totalamount").value = totalAmount;
+        }
+
+
+        function updateSelectedSeatsList() {
+            var selectedSeatsListElement = document.getElementById('selectedSeatsList');
+            selectedSeatsListElement.innerHTML = ''; // Önceki içeriği temizle
+            var veri = document.getElementById("koltuknumber");
+            veri.value = '';
+            selectedSeats.forEach(seat => {
+                var seatNumberElement = document.createElement('div');
+                seatNumberElement.textContent = `Koltuk ${seat.seat}`;
+                veri.value += `${seat.seat},`;
+                selectedSeatsListElement.appendChild(seatNumberElement);
+            });
+            if (veri.value.endsWith(',')) {
+                veri.value = veri.value.slice(0, -1);
+            }
+        }
+
+        function sendSelectedSeatsToBackend() {
+            // Extract seat numbers from the selectedSeats array
+            var selectedSeatNumbers = selectedSeats.map(seat => seat.seat);
+
+            // Make an AJAX request to the backend
+            $.ajax({
+                type: 'POST',
+                url: 'CustomerArea/BuyTicket/Index', // Update the URL with your actual endpoint
+                contentType: 'application/json',
+                data: JSON.stringify({ selectedSeatNumbers: selectedSeatNumbers }),
+                success: function (response) {
+                    if (response.success) {
+                        alert(response.message);
+                        // Optionally, you can perform additional actions after successful reservation
+                    } else {
+                        alert('Seat reservation failed. Please try again.');
+                    }
+                },
+                error: function () {
+                    alert('Error while communicating with the server.');
+                }
+            });
+        }
+
+    </script>
+}
+
+
+<div class="container-bus">
+    <h1 class="pt-2">En Ticketx Koltuğu Seçiniz</h1>
+    <div class="row">
+        @for (int column = 1; column <= 2; column++)
+        {
+            <div class="col-12">
+                @for (int row = 1; row <= Model.Count() / 4; row++)
+                {
+                    var seatNumber = (column - 1) * Model.Count() / 4 + row;
+                    var seat = Model.FirstOrDefault(s => s.SeatNumber == seatNumber);
+                    if (dolukoltuknumaraları.SeatNumberList.Count >= row && dolukoltuknumaraları.SeatNumberList.Any(x => x == seatNumber))
+                    {
+                        <div class="seat dolukoltuk bg-secondary" id="@($"seat_{seatNumber}")" onclick="toggleSeat(@seatNumber, @seat.Price)">
+                            @($"{seatNumber}")
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="seat" id="@($"seat_{seatNumber}")" onclick="toggleSeat(@seatNumber, @seat.Price)">
+                            @($"{seatNumber}")
+                        </div>
+                    }
+                }
+            </div>
+        }
+    </div>
+    <div class="row mt-3">
+        @for (int column = 1; column <= 2; column++)
+        {
+            <div class="col-12">
+                @for (int row = 1; row <= Model.Count() / 4; row++)
+                {
+                    var seatNumber = ((column - 1) * Model.Count() / 4 + row) + Model.Count() / 2;
+                    var seat = Model.FirstOrDefault(s => s.SeatNumber == seatNumber);
+                    if (dolukoltuknumaraları.SeatNumberList.Count >= row && dolukoltuknumaraları.SeatNumberList.Any(x => x == seatNumber))
+                    {
+                        <div class="seat dolukoltuk bg-secondary" id="@($"seat_{seatNumber}")" onclick="toggleSeat(@seatNumber, @seat.Price)">
+                            @($"{seatNumber}")
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="seat" id="@($"seat_{seatNumber}")" onclick="toggleSeat(@seatNumber, @seat.Price)">
+                            @($"{seatNumber}")
+                        </div>
+                    }
+                }
+            </div>
+        }
+    </div>
+    <div class="selected-seats">
+        <div class="d-inline"><p>Seçilen Koltuklar: </p></div>
+    </div>
+    <div class="mt-3">
+        <div class="d-flex justify-content-center gap-2" id="selectedSeatsList"></div>
+        <p id="selectedSeatsCount">Seçilen Koltuk Sayısı: 0</p>
+        <p id="totalAmount">Toplam Ödeme: 0 TL</p>
+    </div>
+    <div class="mt-3">
+        @if (girisyapan != null)
+        {
+            <form method="post">
+                <input type="hidden" id="koltuknumber" name="koltuknumber" value="" />
+                <input type="hidden" id="secilensefernumber" name="secilensefernumber" value="@secilensefernumarası" />
+                <input type="hidden" id="totalamount" name="totalamount" value="" />
+                <button type="submit" class="btn btn-primary">Confirm Reservation</button>
+            </form>
+        }
+        else
+        {
+            <a href="https://localhost:7286/Identity/Account/Login" class="btn btn-primary">Confirm Reservation</a>
+        }
+
+
+    
+    </div>
+
+
+
+</div>

@@ -1,0 +1,38 @@
+﻿@using BusTicketApp.Models.ViewModels
+@model List<Trip>
+@{
+    var trips = ViewData["model"];
+}
+<div class="container-buseslist text-center">
+    <h3>Aranan Tarihte Bulunan Biletler</h3>
+    <table class=" table-bordered table-striped mt-2 text-center">
+        <thead>
+            <tr>
+                <th class="p-2">Trip Id</th>
+                <th class="p-2"> Departure Time</th>
+                <th class="p-2">Bus Id</th>
+                <th class="p-2">Bilet Seç</th>
+                <!-- Diğer sütunlar eklenebilir -->
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var trip in Model)
+            {
+                <tr>
+                    <td class="p-2">@trip.TripId</td>
+                    <td class="p-2">@trip.DepartureTime</td>
+                    <td class="p-2">@trip.BusId</td>
+                    <td class="p-2">
+                        <form method="post" enctype="multipart/form-data">
+                            <input type="hidden" value="@trip.BusId" id="BusId" name="BusId">
+                            <input type="hidden" value="@trip.TripId" id="TripId" name="TripId">
+                            <input type="hidden" value="@trip.DepartureTime" id="DepartureTime" name="DepartureTime">
+                            <input value="Bileti Al" type="submit" class="btn btn-outline-success " />
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <a href="@Url.Action("Index", "Home")">Back to Home</a>
+</div>
